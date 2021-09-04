@@ -8,6 +8,9 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     List<String> valutes = new ArrayList<>();
 
+    RecyclerView recyclerView;
+    ValuteListAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         workWithJson(response);
+                        setRV();
                     }
                 }, error -> {
                     Log.d(TAG, "Error: " + error);
@@ -53,17 +60,39 @@ public class MainActivity extends AppCompatActivity {
                 });
         queue.add(jsonObjectRequest);
 
-        binding.valuteListBatton.setOnClickListener(v -> {
-            PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+        binding.valuteListButton.setOnClickListener(v -> {
+
+
+
+            /*PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
 
             //TODO Set titles like this "Фунт стерлингов Соединенного королевства"
 
             for (String valute: valutes) {
                 popupMenu.getMenu().add(valute);
             }
-            popupMenu.show();
+            popupMenu.show();*/
         });
 
+    }
+
+    private void setRV() {
+        recyclerView = binding.valutesRv;
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                ((LinearLayoutManager) recyclerView.getLayoutManager()).getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+
+        adapter = new ValuteListAdapter(valutes);
+        adapter.setClickListener(new ValuteListAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(TAG, valutes.get(position) + " clicked");
+            }
+        });
+        recyclerView.setAdapter(adapter);
+
+        adapter.notifyDataSetChanged();
     }
 
     private void workWithJson(JSONObject response) {

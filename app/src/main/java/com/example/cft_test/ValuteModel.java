@@ -1,7 +1,11 @@
 package com.example.cft_test;
 
-public class Valute {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class ValuteModel extends RealmObject {
+
+    @PrimaryKey
     private int id;
     private String charCode;
     private int nominal;
@@ -41,7 +45,7 @@ public class Valute {
     }
 
     public float getValue() {
-        return value / nominal;
+        return value;
     }
 
     public void setValue(float value) {
