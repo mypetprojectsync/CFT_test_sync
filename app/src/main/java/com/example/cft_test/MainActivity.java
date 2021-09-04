@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     List<String> valutes = new ArrayList<>();
 
-    //test comment
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
