@@ -4,6 +4,9 @@
 
     <data>
 
+        <variable
+            name="model"
+            type="com.example.cft_test.MainActivityViewModel" />
 
     </data>
 

@@ -6,17 +6,17 @@ import io.realm.annotations.PrimaryKey;
 public class ValuteModel extends RealmObject {
 
     @PrimaryKey
-    private int id;
+    private String id;
     private String charCode;
     private int nominal;
     private String name;
-    private float value;
+    private Double value;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -44,11 +44,11 @@ public class ValuteModel extends RealmObject {
         this.name = name;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(float value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
