@@ -16,7 +16,9 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -52,6 +54,14 @@ public class MainActivityViewModel extends ViewModel {
                     @Override
                     public void onResponse(JSONObject response) {
                         workWithJson(response);
+
+                        try {
+                            Log.d(TAG, "response date: " + response.getString("Date"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        ((MainActivity) context).refillValutes();
                     }
                 }, error -> {
                     Log.d(TAG, "Error: " + error);
@@ -83,13 +93,19 @@ public class MainActivityViewModel extends ViewModel {
 
                 realm.beginTransaction();
 
-                ValuteModel valuteModel = realm.createObject(ValuteModel.class, chosenValute.getString("ID"));
-                valuteModel.setCharCode(chosenValute.getString("CharCode"));
+                ValuteModel valuteModel = realm.where(ValuteModel.class).equalTo("id", chosenValute.getString("ID")).findFirst();
+
+                if (valuteModel == null) {
+                    valuteModel = realm.createObject(ValuteModel.class, chosenValute.getString("ID"));
+                    valuteModel.setCharCode(chosenValute.getString("CharCode"));
+                    valuteModel.setName(chosenValute.getString("Name"));
+                }
+
                 valuteModel.setNominal(chosenValute.getInt("Nominal"));
-                valuteModel.setName(chosenValute.getString("Name"));
                 valuteModel.setValue(chosenValute.getDouble("Value"));
 
                 realm.commitTransaction();
+
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -105,5 +121,18 @@ public class MainActivityViewModel extends ViewModel {
             Log.d(TAG, valuteModel.toString());
         }
 
+    }
+
+    public List<String> getValutes() {
+
+        List<String> valutes = new ArrayList<>();
+
+        RealmResults<ValuteModel> valuteModels = realm.where(ValuteModel.class).findAll();
+
+        for (ValuteModel valuteModel : valuteModels) {
+            valutes.add(valuteModel.getName());
+        }
+
+        return valutes;
     }
 }

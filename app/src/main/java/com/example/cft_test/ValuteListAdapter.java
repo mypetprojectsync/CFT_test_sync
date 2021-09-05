@@ -1,6 +1,6 @@
 package com.example.cft_test;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +16,23 @@ public class ValuteListAdapter extends RecyclerView.Adapter<ValuteListAdapter.Vi
     private final List<String> valutes;
     private ItemClickListener itemClickListener;
 
-    public ValuteListAdapter(List<String> valutes) { this.valutes = valutes;}
+    private final LayoutInflater inflater;
+
+    public ValuteListAdapter(Context context, List<String> valutes) {
+        this.valutes = valutes;
+        this.inflater = LayoutInflater.from(context);
+    }
 
     @NonNull
     @Override
     public ValuteListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_valute, parent, false);
+        View view = inflater.inflate(R.layout.item_valute, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ValuteListAdapter.ViewHolder holder, int position) {
-
-        Log.d("myLogs", "valute holder text: " + valutes.get(position) + " and position: " + position);
-
         holder.valuteTV.setText(valutes.get(position));
     }
 
@@ -53,7 +55,7 @@ public class ValuteListAdapter extends RecyclerView.Adapter<ValuteListAdapter.Vi
         @Override
         public void onClick(View v) {
             if (itemClickListener != null)
-                itemClickListener.onItemClick(v, getAdapterPosition());
+                itemClickListener.onItemClick(v, getAbsoluteAdapterPosition());
         }
     }
 

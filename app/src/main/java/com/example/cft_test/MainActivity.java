@@ -38,11 +38,13 @@ public class MainActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(MainActivityViewModel.class);
         binding.setModel(model);
 
-        model.updateValutes(getBaseContext());
+        model.updateValutes(this);
 
         binding.valuteListButton.setOnClickListener(v -> {
 
-            model.showAllRealmDatabase();
+            //model.showAllRealmDatabase();
+
+            refillValutes();
 
             /*PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
 
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.show();*/
         });
 
+        setRV();
+
     }
 
     private void setRV() {
@@ -63,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 ((LinearLayoutManager) recyclerView.getLayoutManager()).getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        adapter = new ValuteListAdapter(valutes);
+        adapter = new ValuteListAdapter(this, valutes);
+
         adapter.setClickListener(new ValuteListAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -75,12 +80,19 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    public void refillValutes() {
+
+        valutes.clear();
+        valutes.addAll(model.getValutes());
+
+        adapter.notifyDataSetChanged();
+    }
 
 }
 
-//todo 3.5. implement saving data when orientation change. Popupmenu too
+//todo 5.5. implement saving data when orientation change. Popupmenu too
 //todo 4. add converting rubles to chosen currency
 //todo 5. add update currency button
 //todo 6. add periodic currency update
-//todo 7. implement recycler view currency list
+//todo 7. implement recycler view currency list selection when clicked
 
