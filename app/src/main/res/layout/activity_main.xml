@@ -15,22 +15,28 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal">
 
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/valute_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/valute_list"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/valute_list_button"
+            >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/valutes_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/valute_list_button"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </RelativeLayout>
 
-
-</layout>
+    </layout>

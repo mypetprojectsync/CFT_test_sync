@@ -3,6 +3,7 @@ package com.example.cft_test;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.ViewModel;
 import androidx.preference.PreferenceManager;
@@ -11,7 +12,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,9 +36,7 @@ public class MainActivityViewModel extends ViewModel {
 
     SharedPreferences sharedPreferences;
 
-    public void updateValutesWithDataCheck(Context context) {
-
-        RequestQueue queue = Volley.newRequestQueue(context);
+    public void updateValutesWithDateCheck(Context context, RequestQueue queue) {
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -67,7 +65,11 @@ public class MainActivityViewModel extends ViewModel {
                                 editor.apply();
 
                                 ((MainActivity) context).refillValutes();
+
                             }
+
+                            Log.d(TAG, "Update finished");
+
                         } catch (ParseException | JSONException e) {
                             e.printStackTrace();
                         }
@@ -131,5 +133,47 @@ public class MainActivityViewModel extends ViewModel {
         }
 
         return valutes;
+    }
+
+    public void updateValutesWithoutDateCheck(Context context, RequestQueue queue) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
+
+                        Log.d(TAG, "lastUpdate: " + lastUpdate);
+
+                        try {
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+
+                            Date lastUpdateDateTime = format.parse(lastUpdate);
+                            Date dataDate = format.parse(response.getString("Date"));
+
+                            if (dataDate.getTime() > lastUpdateDateTime.getTime()) {
+                                workWithJson(response);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("last_update_date", response.getString("Date"));
+                                editor.apply();
+
+                                ((MainActivity) context).refillValutes();
+                            } else {
+                                Toast.makeText(context, "Данные актуальны", Toast.LENGTH_SHORT).show();
+                            }
+                                ((MainActivity) context).stopRefresh();
+
+                        } catch (ParseException | JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, error -> {
+                    Log.d(TAG, "Error: " + error);
+                });
+        queue.add(jsonObjectRequest);
     }
 }
