@@ -3,6 +3,7 @@ package com.example.cft_test;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -86,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         valutes.addAll(model.getValutes());
 
         adapter.notifyDataSetChanged();
+
+        Toast.makeText(this, "Данные были обновлены", Toast.LENGTH_SHORT).show();
     }
 
 }

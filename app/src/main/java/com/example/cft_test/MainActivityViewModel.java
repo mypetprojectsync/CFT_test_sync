@@ -16,7 +16,10 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,21 +30,19 @@ public class MainActivityViewModel extends ViewModel {
 
     final String TAG = "myLogs";
     final Realm realm = Realm.getDefaultInstance();
+    final long MINIMAL_UPDATE_TIME = 60000;
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
 
     private JSONObject valute;
 
+    SharedPreferences sharedPreferences;
+
     public void updateValutes(Context context) {
 
         Log.d(TAG, "updateValutes(Context context)");
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        int lastUpdateDate = sharedPreferences.getInt("last_update_date", 0);
-
-        if (lastUpdateDate == 0) {
-            getValutesData(context);
-        }
+                getValutesData(context);
 
     }
 
@@ -53,15 +54,36 @@ public class MainActivityViewModel extends ViewModel {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        workWithJson(response);
+
+                        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
+
+                        Log.d(TAG, "lastUpdate: " + lastUpdate);
 
                         try {
-                            Log.d(TAG, "response date: " + response.getString("Date"));
-                        } catch (JSONException e) {
+
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+
+                            Date lastUpdateDateTime = format.parse(lastUpdate);
+                            Date dataDate = format.parse(response.getString("Date"));
+
+                            long diff = dataDate.getTime()-lastUpdateDateTime.getTime();
+
+                            if (diff > MINIMAL_UPDATE_TIME) {
+                                workWithJson(response);
+                            }
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("last_update_date", response.getString("Date"));
+                            editor.apply();
+
+                            Log.d(TAG, "response.getString(\"Date\"): " + response.getString("Date"));
+
+                            ((MainActivity) context).refillValutes();
+
+                        } catch (ParseException | JSONException e) {
                             e.printStackTrace();
                         }
-
-                        ((MainActivity) context).refillValutes();
                     }
                 }, error -> {
                     Log.d(TAG, "Error: " + error);
