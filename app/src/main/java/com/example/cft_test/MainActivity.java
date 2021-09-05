@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(MainActivityViewModel.class);
         binding.setModel(model);
 
-        model.updateValutes(this);
+        model.updateValutesWithDataCheck(this);
 
         binding.valuteListButton.setOnClickListener(v -> {
 

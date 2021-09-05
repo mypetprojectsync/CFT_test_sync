@@ -2,10 +2,10 @@ package com.example.cft_test;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
+import androidx.preference.PreferenceManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,19 +34,10 @@ public class MainActivityViewModel extends ViewModel {
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
 
-    private JSONObject valute;
-
     SharedPreferences sharedPreferences;
 
-    public void updateValutes(Context context) {
+    public void updateValutesWithDataCheck(Context context) {
 
-        Log.d(TAG, "updateValutes(Context context)");
-
-                getValutesData(context);
-
-    }
-
-    private void getValutesData(Context context) {
         RequestQueue queue = Volley.newRequestQueue(context);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -61,78 +52,62 @@ public class MainActivityViewModel extends ViewModel {
                         Log.d(TAG, "lastUpdate: " + lastUpdate);
 
                         try {
-
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
 
                             Date lastUpdateDateTime = format.parse(lastUpdate);
                             Date dataDate = format.parse(response.getString("Date"));
 
-                            long diff = dataDate.getTime()-lastUpdateDateTime.getTime();
+                            long diff = dataDate.getTime() - lastUpdateDateTime.getTime();
 
                             if (diff > MINIMAL_UPDATE_TIME) {
                                 workWithJson(response);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("last_update_date", response.getString("Date"));
+                                editor.apply();
+
+                                ((MainActivity) context).refillValutes();
                             }
-
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("last_update_date", response.getString("Date"));
-                            editor.apply();
-
-                            Log.d(TAG, "response.getString(\"Date\"): " + response.getString("Date"));
-
-                            ((MainActivity) context).refillValutes();
-
                         } catch (ParseException | JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }, error -> {
                     Log.d(TAG, "Error: " + error);
-
                 });
         queue.add(jsonObjectRequest);
+
     }
 
-    private void workWithJson(JSONObject response) {
+    private void workWithJson(JSONObject response) throws JSONException {
 
-        try {
+        JSONObject valute = response.getJSONObject("Valute");
 
-            valute = response.getJSONObject("Valute");
-
-            if (valute != null) writeNewValuteDataToRealm();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        if (valute != null) writeNewValuteDataToRealm(valute);
     }
 
-    private void writeNewValuteDataToRealm() {
+    private void writeNewValuteDataToRealm(JSONObject valute) throws JSONException {
         Iterator<String> keys = valute.keys();
 
         while (keys.hasNext()) {
             String key = keys.next();
-            try {
-                JSONObject chosenValute = valute.getJSONObject(key);
 
-                realm.beginTransaction();
+            JSONObject chosenValute = valute.getJSONObject(key);
 
-                ValuteModel valuteModel = realm.where(ValuteModel.class).equalTo("id", chosenValute.getString("ID")).findFirst();
+            realm.beginTransaction();
 
-                if (valuteModel == null) {
-                    valuteModel = realm.createObject(ValuteModel.class, chosenValute.getString("ID"));
-                    valuteModel.setCharCode(chosenValute.getString("CharCode"));
-                    valuteModel.setName(chosenValute.getString("Name"));
-                }
+            ValuteModel valuteModel = realm.where(ValuteModel.class).equalTo("id", chosenValute.getString("ID")).findFirst();
 
-                valuteModel.setNominal(chosenValute.getInt("Nominal"));
-                valuteModel.setValue(chosenValute.getDouble("Value"));
-
-                realm.commitTransaction();
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.d(TAG, e.toString());
+            if (valuteModel == null) {
+                valuteModel = realm.createObject(ValuteModel.class, chosenValute.getString("ID"));
+                valuteModel.setCharCode(chosenValute.getString("CharCode"));
+                valuteModel.setName(chosenValute.getString("Name"));
             }
+
+            valuteModel.setNominal(chosenValute.getInt("Nominal"));
+            valuteModel.setValue(chosenValute.getDouble("Value"));
+
+            realm.commitTransaction();
         }
     }
 
