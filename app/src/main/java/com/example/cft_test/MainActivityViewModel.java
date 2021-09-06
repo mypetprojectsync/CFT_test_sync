@@ -2,11 +2,11 @@ package com.example.cft_test;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.ViewModel;
-import androidx.preference.PreferenceManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -33,6 +33,12 @@ public class MainActivityViewModel extends ViewModel {
     final long MINIMAL_UPDATE_TIME = 60000;
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
+
+    private String chosenValuteID;
+    private String charCode;
+    private int nominal;
+    private String name;
+    private double value;
 
     SharedPreferences sharedPreferences;
 
@@ -175,5 +181,58 @@ public class MainActivityViewModel extends ViewModel {
                     Log.d(TAG, "Error: " + error);
                 });
         queue.add(jsonObjectRequest);
+    }
+
+    public String getCharCode() {
+        return charCode;
+    }
+
+    public void setCharCode(String charCode) {
+        this.charCode = charCode;
+    }
+
+    public int getNominal() {
+        return nominal;
+    }
+
+    public void setNominal(int nominal) {
+        this.nominal = nominal;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(float value) {
+        this.value = value;
+    }
+
+    public String getChosenValuteID() {
+        return chosenValuteID;
+    }
+
+    public void setChosenValuteID(String chosenValuteID) {
+        this.chosenValuteID = chosenValuteID;
+    }
+
+    public void setChosenValutebyName(String chosenValuteName) {
+                this.chosenValuteID = realm.where(ValuteModel.class).equalTo("name", chosenValuteName).findFirst().getId();
+                setChosenValuteData();
+    }
+
+    private void setChosenValuteData() {
+        ValuteModel valuteModel = realm.where(ValuteModel.class).equalTo("id", chosenValuteID).findFirst();
+        this.charCode = valuteModel.getCharCode();
+        this.nominal = valuteModel.getNominal();
+        this.name = valuteModel.getName();
+        this.value = valuteModel.getValue();
     }
 }

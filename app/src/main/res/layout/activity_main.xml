@@ -8,6 +8,10 @@
             name="model"
             type="com.example.cft_test.MainActivityViewModel" />
 
+        <variable
+            name="valute"
+            type="com.example.cft_test.Valute" />
+
     </data>
 
     <RelativeLayout
@@ -16,40 +20,54 @@
         android:gravity="center_horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/rublesTIL"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:id="@+id/rubles_TIL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             app:counterEnabled="true"
             app:counterMaxLength="20"
             app:errorEnabled="true"
-            android:layout_margin="10dp">
-
-<AutoCompleteTextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="number"/>
+            app:prefixText="RUR">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/rublesTIET"
+                android:id="@+id/rubles_TIET"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="@={valute.rublesAmount}"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/valute_list_button"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/valute_TIL"
+
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/valute_list"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/rublesTIL"/>
+            android:layout_margin="10dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            app:errorEnabled="true"
+            app:endIconMode="custom"
+            app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
+            android:layout_below="@+id/rubles_TIL"
+            app:prefixText="@{valute.charCode}">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/valute_TIET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="@={valute.valuteAmount}"
+                />
+
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/valute_list_button"
+            android:layout_below="@+id/valute_TIL"
             >
 
         <androidx.recyclerview.widget.RecyclerView

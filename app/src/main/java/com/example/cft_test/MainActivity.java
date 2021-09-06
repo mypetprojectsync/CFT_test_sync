@@ -3,11 +3,15 @@ package com.example.cft_test;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ValuteListAdapter adapter;
 
+
     Runnable runnable;
     Handler handler = new Handler(Looper.getMainLooper());
 
@@ -52,25 +57,18 @@ public class MainActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(MainActivityViewModel.class);
         binding.setModel(model);
 
+
         model.updateValutesWithDateCheck(this, queue);
 
-        binding.valuteListButton.setOnClickListener(v -> {
+        if (valutes.size() > 0 && model.getChosenValuteID() == null)
+            model.setChosenValutebyName(valutes.get(0));
 
-            //model.showAllRealmDatabase();
-
-            refillValutes();
-
-            /*PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
-
-            //TODO Set titles like this "Фунт стерлингов Соединенного королевства"
-
-            for (String valute: valutes) {
-                popupMenu.getMenu().add(valute);
-            }
-            popupMenu.show();*/
-        });
+        Valute valute = new Valute(model.getChosenValuteID(), model.getCharCode(), model.getNominal(), model.getName(), model.getValue());
+        binding.setValute(valute);
 
         setRV();
+
+        setTIL();
 
         binding.swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -78,6 +76,76 @@ public class MainActivity extends AppCompatActivity {
                 model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue);
             }
         });
+    }
+
+    private void setTIL() {
+
+        binding.valuteTIL.setEndIconOnClickListener(v -> {
+
+            Log.d(TAG, "icon clicked");
+
+            PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+
+
+            for (String valute : valutes) {
+                popupMenu.getMenu().add(valute);
+            }
+
+            popupMenu.show();
+
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+
+                    model.setChosenValutebyName(item.getTitle().toString());
+
+                    Valute valute = binding.getValute();
+                    valute.setID(model.getChosenValuteID());
+                    valute.setValue(model.getValue());
+                    valute.setCharCode(model.getCharCode());
+                    valute.setName(model.getName());
+                    valute.setNominal(model.getNominal());
+
+                    valute.setRublesAmount(Integer.toString(valute.getNominal()));
+
+                    valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
+
+                    Log.d(TAG, "valute.getCurrancy: " + valute.getValuteAmount());
+
+                    return false;
+                }
+            });
+        });
+
+
+        binding.rublesTIET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                Valute valute = binding.getValute();
+
+                if (s.length() > 0) {
+
+                    if (valute.getValuteAmount() != null) {
+                        valute.setValuteAmount(
+                                Double.toString(Double.parseDouble(s.toString()) * valute.getNominal()/ valute.getValue() ));
+                    }
+                } else {
+                    valute.setValuteAmount("0");
+                }
+            }
+        });
+
     }
 
     @Override

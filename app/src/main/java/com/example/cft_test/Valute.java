@@ -1,27 +1,42 @@
 package com.example.cft_test;
 
-public class Valute {
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 
-    private int id;
+public class Valute extends BaseObservable {
+
+    private String ID;
     private String charCode;
     private int nominal;
     private String name;
-    private float value;
+    private double value;
+    private String rublesAmount = "1.00";
+    private String valuteAmount;
 
-    public int getId() {
-        return id;
+    public Valute(String id, String charCode, int nominal, String name, double value) {
+        this.ID = id;
+        this.charCode = charCode;
+        this.nominal = nominal;
+        this.name = name;
+        this.value = value;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getID() {
+        return ID;
     }
 
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
+    @Bindable
     public String getCharCode() {
         return charCode;
     }
 
     public void setCharCode(String charCode) {
         this.charCode = charCode;
+        notifyPropertyChanged(BR.charCode);
     }
 
     public int getNominal() {
@@ -40,13 +55,31 @@ public class Valute {
         this.name = name;
     }
 
-    public float getValue() {
-        return value / nominal;
+    public double getValue() {
+        return value;
     }
 
-    public void setValue(float value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
+@Bindable
+    public String getRublesAmount() {
+        return rublesAmount;
+    }
 
+    public void setRublesAmount(String rublesAmount) {
+        this.rublesAmount = rublesAmount;
+        notifyPropertyChanged(BR.rublesAmount);
+    }
+
+    @Bindable
+    public String getValuteAmount() {
+        return valuteAmount;
+    }
+
+    public void setValuteAmount(String valuteAmount) {
+        this.valuteAmount = valuteAmount;
+        notifyPropertyChanged(BR.valuteAmount);
+    }
 }
