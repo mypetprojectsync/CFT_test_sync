@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
                     valute.setRublesAmount(Integer.toString(valute.getNominal()));
 
+                    //todo проверить строчку ниже, возможно есть неточности
                     valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
 
                     Log.d(TAG, "valute.getCurrancy: " + valute.getValuteAmount());
@@ -210,8 +211,7 @@ public class MainActivity extends AppCompatActivity {
 }
 
 //todo 5.5. implement saving data when orientation change. Popupmenu too
-//todo 4. add converting rubles to chosen currency
-//todo 5. add update currency button
-//todo 6. add periodic currency update
+
 //todo 7. implement recycler view currency list selection when clicked
 
+//todo упомянуть СДР в пояснительной записке
