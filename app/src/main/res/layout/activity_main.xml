@@ -15,13 +15,35 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rublesTIL"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            app:errorEnabled="true"
+            android:layout_margin="10dp">
+
+<AutoCompleteTextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="number"/>
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/rublesTIET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/valute_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/valute_list"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/rublesTIL"/>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swiperefresh"
