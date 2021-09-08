@@ -25,6 +25,7 @@ import com.example.cft_test.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -109,7 +110,8 @@ public class MainActivity extends AppCompatActivity {
                     valute.setRublesAmount(Integer.toString(valute.getNominal()));
 
                     //todo проверить строчку ниже, возможно есть неточности
-                    valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
+                    //valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
+                    valute.setValuteAmount(String.format("%1$,.2f", valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
 
                     Log.d(TAG, "valute.getCurrancy: " + valute.getValuteAmount());
 
@@ -138,8 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 if (s.length() > 0) {
 
                     if (valute.getValuteAmount() != null) {
-                        valute.setValuteAmount(
-                                Double.toString(Double.parseDouble(s.toString()) * valute.getNominal()/ valute.getValue() ));
+                        valute.setValuteAmount(String.format(Locale.getDefault(),"%1$,.2f",(Double.parseDouble(s.toString()) * valute.getNominal()/ valute.getValue() )));
                     }
                 } else {
                     valute.setValuteAmount("0");

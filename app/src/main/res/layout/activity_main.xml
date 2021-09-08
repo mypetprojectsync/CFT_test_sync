@@ -21,20 +21,22 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/rubles_TIL"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:counterEnabled="true"
             app:counterMaxLength="20"
             app:errorEnabled="true"
-            app:prefixText="RUR">
+            app:prefixText="RUR"
+            android:hint="@{valute.charCode == null ? `` : `1 RUR = ` + String.format(`%.4f`,(((double) valute.nominal) / valute.value)) + ` ` + valute.charCode}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/rubles_TIET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
-                android:text="@={valute.rublesAmount}"/>
+                android:inputType="numberDecimal"
+                android:text="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -44,20 +46,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            app:counterEnabled="true"
-            app:counterMaxLength="20"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:errorEnabled="true"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
             android:layout_below="@+id/rubles_TIL"
-            app:prefixText="@{valute.charCode}">
+            app:prefixText="@{valute.charCode}"
+            android:hint="@{valute.charCode == null ? `` : valute.nominal + ` ` + valute.charCode  + ` = ` + valute.value + ` RUR`}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/valute_TIET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:text="@={valute.valuteAmount}"
+                android:text="@{valute.valuteAmount.toString().replaceAll(`\\.?0*$`, ``)}"
+                android:enabled="false"
+                android:textColor="@color/black"
                 />
 
 

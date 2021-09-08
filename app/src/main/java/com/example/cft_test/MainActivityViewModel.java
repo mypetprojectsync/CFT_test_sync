@@ -30,7 +30,7 @@ public class MainActivityViewModel extends ViewModel {
 
     final String TAG = "myLogs";
     final Realm realm = Realm.getDefaultInstance();
-    final long MINIMAL_UPDATE_TIME = 60000;
+    final long MINIMAL_UPDATE_TIME = 60000; // milliseconds
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
 

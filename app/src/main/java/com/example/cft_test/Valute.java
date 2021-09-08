@@ -10,8 +10,9 @@ public class Valute extends BaseObservable {
     private int nominal;
     private String name;
     private double value;
-    private String rublesAmount = "1.00";
+    private String rublesAmount = "1";
     private String valuteAmount;
+
 
     public Valute(String id, String charCode, int nominal, String name, double value) {
         this.ID = id;
@@ -39,31 +40,37 @@ public class Valute extends BaseObservable {
         notifyPropertyChanged(BR.charCode);
     }
 
+    @Bindable
     public int getNominal() {
         return nominal;
     }
 
     public void setNominal(int nominal) {
         this.nominal = nominal;
+        notifyPropertyChanged(BR.nominal);
     }
 
+    @Bindable
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+        notifyPropertyChanged(BR.name);
     }
 
+    @Bindable
     public double getValue() {
         return value;
     }
 
     public void setValue(double value) {
         this.value = value;
+        notifyPropertyChanged(BR.value);
     }
 
-@Bindable
+    @Bindable
     public String getRublesAmount() {
         return rublesAmount;
     }
@@ -76,10 +83,12 @@ public class Valute extends BaseObservable {
     @Bindable
     public String getValuteAmount() {
         return valuteAmount;
+
     }
 
     public void setValuteAmount(String valuteAmount) {
         this.valuteAmount = valuteAmount;
         notifyPropertyChanged(BR.valuteAmount);
     }
+
 }
