@@ -23,9 +23,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.cft_test.databinding.ActivityMainBinding;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler(Looper.getMainLooper());
 
     RequestQueue queue;
+
+    int textLengthbeforeChanged = 0;
+    int textLengthafterChanged = 0;
+    int selectorLastPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+                Log.d(TAG, "Selector end before text changed at position: " + binding.rublesTIET.getSelectionEnd());
+                textLengthbeforeChanged = s.length();
+
+                selectorLastPosition = binding.rublesTIET.getSelectionEnd();
+
+                Log.d(TAG,"before text changed char sequence: " + s.toString());
             }
 
             @Override
@@ -135,18 +148,89 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
-                Valute valute = binding.getValute();
+                textLengthafterChanged = s.length();
 
+
+                Valute valute = binding.getValute();
                 if (s.length() > 0) {
 
-                    if (valute.getValuteAmount() != null) {
-                        valute.setValuteAmount(String.format(Locale.getDefault(),"%1$,.2f",(Double.parseDouble(s.toString()) * valute.getNominal()/ valute.getValue() )));
+                    if (selectorLastPosition > (s.length() -4)) {
+                        //valute.setRublesAmount(valute.getRublesAmount().substring(0, valute.getRublesAmount().length()-1));
+
+                        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+                        String formatted = null;
+                        try {
+                            formatted = String.format(Locale.getDefault(), "%,.3f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+                            Log.d(TAG,"formatted: " + formatted);
+                            valute.setRublesAmount(formatted.substring(0, formatted.length()-1));
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    } else {
+
+                        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+
+                        try {
+
+                            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+
+                            valute.setRublesAmount(formatted);
+
+                            //   Log.d(TAG,"formatted: " + formatted);
+
+                            //Если кликнута точка или запятая на позиции 3 с конца, передвигаем курсор на позицию 2 с конца
+
+                            //Если кликнута точка или запятая в любой другой позиции, игнорируем
+
+                            //Если курсор на позиции 0 с конца, игнорируем
+
+                            //Если курсор на позиции 1 или 2 с конца, отбрасываем тысячную без округления
+
+                            Log.d(TAG, "Selector end after format at position: " + binding.rublesTIET.getSelectionEnd());
+
+
+
+                            //valute.setRublesAmount(String.format(Locale.getDefault(),"%,.2f",format.parse(s.toString()).doubleValue()));
+
+
+                            setValuteTIET(s);
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
+
+                    int newSelectorPosition = selectorLastPosition + textLengthafterChanged - textLengthbeforeChanged;
+
+                    if (newSelectorPosition >= 0) {
+                        binding.rublesTIET.setSelection(newSelectorPosition);
+                    } else {
+                        binding.rublesTIET.setSelection(0);
+                    }
+
+                    selectorLastPosition = binding.rublesTIET.getSelectionEnd();
+
                 } else {
                     valute.setValuteAmount("0");
                 }
             }
+
         });
+
+    }
+
+    private void setValuteTIET(Editable s) throws ParseException {
+
+        Valute valute = binding.getValute();
+
+        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+
+        if (valute.getValuteAmount() != null) {
+            valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(s.toString()).doubleValue() * valute.getNominal() / valute.getValue())));
+        }
 
     }
 
