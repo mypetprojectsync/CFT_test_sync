@@ -10,7 +10,7 @@ public class Valute extends BaseObservable {
     private int nominal;
     private String name;
     private double value;
-    private String rublesAmount = "1";
+    private String rublesAmount = "1,00";
     private String valuteAmount;
 
 
