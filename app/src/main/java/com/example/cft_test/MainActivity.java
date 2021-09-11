@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     int textLengthafterChanged = 0;
     int selectorLastPosition = 0;
 
-    boolean ignoreNextIteration = false;
+    boolean ignoreNextIteration = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,12 +152,18 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.d(TAG, "Text before changed: " + textBeforeChanged);
 
+
+
+
                 if (ignoreNextIteration) {
                     ignoreNextIteration = false;
 
                 } else {
 
-                    if (s.length() > textBeforeChanged.length()) {
+                    if (s.length() > 20) {
+                        ignoreNextIteration = true;
+                        valute.setRublesAmount(textBeforeChanged);
+                    } else if (s.length() > textBeforeChanged.length()) {
                         Log.d(TAG, "add symbol: " + s.charAt(selectorLastPosition));
 
                         if (s.charAt(selectorLastPosition) == '.') {
@@ -172,6 +178,17 @@ public class MainActivity extends AppCompatActivity {
 
                             if (selectorLastPosition > textBeforeChanged.length() - 3) {
                                 Log.d(TAG, "dot and after");
+
+                                if (selectorLastPosition == textBeforeChanged.length() - 2) {
+                                    valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
+                                    selectorLastPosition++;
+                                } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
+                                    selectorLastPosition++;
+                                    valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
+                                } else {
+                                    valute.setRublesAmount(textBeforeChanged);
+                                }
+                                ignoreNextIteration = true;
                             } else {
                                 NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
                                 try {
@@ -187,14 +204,23 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
-
-
                             }
                         }
                     } else {
 
                         Log.d(TAG, "reduce symbol: " + textBeforeChanged.charAt(selectorLastPosition));
+                        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+                        try {
 
+                            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+                            valute.setRublesAmount(formatted);
+                           selectorLastPosition -= textBeforeChanged.length() - formatted.length() - 1;
+
+                           ignoreNextIteration= true;
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     Log.d(TAG, "selectorLastPosition: " + selectorLastPosition);
