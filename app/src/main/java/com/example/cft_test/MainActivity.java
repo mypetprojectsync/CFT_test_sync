@@ -50,11 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     RequestQueue queue;
 
-    int textLengthbeforeChanged = 0;
-    String textBeforeChanged = "";
-    int textLengthafterChanged = 0;
-    int selectorLastPosition = 0;
 
+    String textBeforeChanged = "";
+    int selectorLastPosition = 0;
     boolean ignoreNextIteration = true;
 
     @Override
@@ -79,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         setRV();
 
-        setTIL();
+        setValuteTIL();
 
         binding.swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setTIL() {
+    private void setValuteTIL() {
 
         binding.valuteTIL.setEndIconOnClickListener(v -> {
 
@@ -117,11 +115,12 @@ public class MainActivity extends AppCompatActivity {
                     valute.setName(model.getName());
                     valute.setNominal(model.getNominal());
 
-                    valute.setRublesAmount(Integer.toString(valute.getNominal()));
+                   // valute.setRublesAmount(Integer.toString(valute.getNominal()));
 
                     //todo проверить строчку ниже, возможно есть неточности
                     //valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
-                    valute.setValuteAmount(String.format("%1$,.2f", valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
+                    //valute.setValuteAmount(String.format(Locale.getDefault(),"%,.2f", valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
+                    setValuteTIET();
 
                     return false;
                 }
@@ -255,21 +254,23 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 binding.rublesTIET.setSelection(selectorLastPosition);
+
+                setValuteTIET();
             }
         });
-
     }
 
-    private void setValuteTIET(Editable s) throws ParseException {
+    private void setValuteTIET(){
 
         Valute valute = binding.getValute();
 
         NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 
-        if (valute.getValuteAmount() != null) {
-            valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(s.toString()).doubleValue() * valute.getNominal() / valute.getValue())));
-        }
-
+            try {
+                valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(valute.getRublesAmount()).doubleValue() * valute.getNominal() / valute.getValue())));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override

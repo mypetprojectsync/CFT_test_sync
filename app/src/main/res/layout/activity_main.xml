@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:text="@{valute.valuteAmount.toString().replaceAll(`\\.?0*$`, ``)}"
+                android:text="@{valute.valuteAmount}"
                 android:enabled="false"
                 android:textColor="@color/black"
                 />
