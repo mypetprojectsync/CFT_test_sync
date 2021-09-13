@@ -123,23 +123,20 @@ public class MainActivity extends AppCompatActivity {
                     //valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
                     valute.setValuteAmount(String.format("%1$,.2f", valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
 
-                    Log.d(TAG, "valute.getCurrancy: " + valute.getValuteAmount());
-
                     return false;
                 }
             });
         });
 
-
+//todo добвить поддержку 1,123,456.78
         binding.rublesTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
                 if (!ignoreNextIteration) {
                     textBeforeChanged = s.toString();
-                    selectorLastPosition = start;
+                    selectorLastPosition = binding.rublesTIET.getSelectionStart();
                 }
-                Log.d(TAG, "before text changed char sequence: " + textBeforeChanged);
             }
 
             @Override
@@ -150,196 +147,113 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
-                Log.d(TAG, "Text before changed: " + textBeforeChanged);
-
-
-
-
                 if (ignoreNextIteration) {
                     ignoreNextIteration = false;
-
                 } else {
 
                     if (s.length() > 20) {
                         ignoreNextIteration = true;
                         valute.setRublesAmount(textBeforeChanged);
+
+                        //character added
                     } else if (s.length() > textBeforeChanged.length()) {
-                        Log.d(TAG, "add symbol: " + s.charAt(selectorLastPosition));
 
                         if (s.charAt(selectorLastPosition) == '.') {
+
                             ignoreNextIteration = true;
+
                             if (selectorLastPosition == s.length() - 4) {
                                 selectorLastPosition++;
                             }
+
                             binding.rublesTIET.setText(textBeforeChanged);
 
-                        } else {
-                            String formatted;
+                        } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
 
-                            if (selectorLastPosition > textBeforeChanged.length() - 3) {
-                                Log.d(TAG, "dot and after");
+                            if (selectorLastPosition == textBeforeChanged.length() - 2) {
 
-                                if (selectorLastPosition == textBeforeChanged.length() - 2) {
-                                    valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
-                                    selectorLastPosition++;
-                                } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
-                                    selectorLastPosition++;
-                                    valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
-                                } else {
-                                    valute.setRublesAmount(textBeforeChanged);
-                                }
-                                ignoreNextIteration = true;
+                                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
+                                selectorLastPosition++;
+
+                            } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
+
+                                selectorLastPosition++;
+                                valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
+
                             } else {
-                                NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-                                try {
 
-                                    formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                                    valute.setRublesAmount(formatted);
-                                    selectorLastPosition += formatted.length() - textBeforeChanged.length();
+                                valute.setRublesAmount(textBeforeChanged);
 
-                                    if (textBeforeChanged.length() > 5) {
-                                        ignoreNextIteration = true;
-                                    }
-
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
                             }
-                        }
-                    } else {
+                            ignoreNextIteration = true;
 
-                        Log.d(TAG, "reduce symbol: " + textBeforeChanged.charAt(selectorLastPosition));
-                        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-                        try {
+                        } else if (selectorLastPosition == 0 && s.charAt(0) == '0') {
 
-                            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                            valute.setRublesAmount(formatted);
-                           selectorLastPosition -= textBeforeChanged.length() - formatted.length() - 1;
+                            valute.setRublesAmount(textBeforeChanged);
+                            ignoreNextIteration = true;
 
-                           ignoreNextIteration= true;
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    Log.d(TAG, "selectorLastPosition: " + selectorLastPosition);
-
-
-                /*textLengthafterChanged = s.length();
-
-                int moveSelectorToRight = 0;
-
-                Valute valute = binding.getValute();
-                if (s.length() > 0) {
-
-                    if (ignoreNextIteration) {
-
-                        ignoreNextIteration = false;
-                        binding.rublesTIET.setSelection(selectorLastPosition - 1);
-
-                    } else {
-
-//todo когда стираешь первый символ перед запятой, курсор смещается на предпоследнее место
-                        if (selectorLastPosition > (s.length() - 4)) {
-
-                            Log.d(TAG, "s.charAt(selectorLastPosition): " + s.charAt(selectorLastPosition-2));
-                            Log.d(TAG, "textBeforeChanged.charAt(selectorLastPosition): " + textBeforeChanged.charAt(selectorLastPosition-1));
+                        } else {
 
                             NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-                            String formatted = null;
+
                             try {
-                                formatted = String.format(Locale.getDefault(), "%,.3f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+                                String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+                                valute.setRublesAmount(formatted);
+                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
 
-                                // valute.setRublesAmount(formatted.substring(0, formatted.length() - 1));
+                                if (textBeforeChanged.length() > 5 || s.charAt(0) == '0') {
+                                    ignoreNextIteration = true;
+                                }
 
-                                Log.d(TAG, "formatted: " + formatted);
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
+                        }
 
-                            //int newSelectorPosition = selectorLastPosition + textLengthafterChanged - textLengthbeforeChanged + moveSelectorToRight;
+                        //character removed
+                    } else {
 
-                            if ((s.charAt(s.length() - 4) == '.' || s.charAt(s.length() - 4) == ',') && textLengthbeforeChanged < textLengthafterChanged) {
-                                if (selectorLastPosition == s.length() - 3) {
-                                    //todo менять местами сотые и тысячные
-                                    valute.setRublesAmount(formatted.substring(0, selectorLastPosition + 1) + formatted.substring(selectorLastPosition + 2));
-                                    binding.rublesTIET.setSelection(s.length() - 2);
-                                } else {
-                                    valute.setRublesAmount(formatted.substring(0, formatted.length() - 1));
-                                    binding.rublesTIET.setSelection(s.length() - 1);
+                        if (selectorLastPosition == textBeforeChanged.length() - 2 || textBeforeChanged.charAt(selectorLastPosition - 1) == ' ') {
 
-                                }
-                            }  else {
-                                binding.rublesTIET.setSelection(selectorLastPosition);
-                            }
-
-
-                        } else if (selectorLastPosition == (s.length() - 4) && (s.charAt(s.length() - 4) == '.' || s.charAt(s.length() - 4) == ',')) {
-
-                            // moveSelectorToRight++;
-
-                            valute.setRublesAmount(s.toString().substring(0, s.length() - 4) + s.toString().substring(s.length() - 3, s.length()));
-
-                            int newSelectorPosition = selectorLastPosition + textLengthafterChanged - textLengthbeforeChanged;
-
-                            if (newSelectorPosition >= 0) {
-                                binding.rublesTIET.setSelection(newSelectorPosition);
-                            } else {
-                                binding.rublesTIET.setSelection(0);
-                            }
-                        } else if (s.charAt(selectorLastPosition) == '.') {
-                            valute.setRublesAmount(s.toString().substring(0, selectorLastPosition) + s.toString().substring(selectorLastPosition + 1, s.length()));
+                            selectorLastPosition--;
+                            valute.setRublesAmount(textBeforeChanged);
                             ignoreNextIteration = true;
+
+                        } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
+
+                            if (selectorLastPosition == textBeforeChanged.length() - 1) {
+                                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition - 1) + "0" + s.toString().substring(selectorLastPosition - 1));
+                            } else {
+                                valute.setRublesAmount(s.toString() + '0');
+                            }
+                            selectorLastPosition--;
+                            ignoreNextIteration = true;
+
                         } else {
 
                             NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-
                             try {
 
                                 String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-
                                 valute.setRublesAmount(formatted);
 
-                                //   Log.d(TAG,"formatted: " + formatted);
-
-                                //Если кликнута точка или запятая на позиции 3 с конца, передвигаем курсор на позицию 2 с конца
-
-                                //Если кликнута точка или запятая в любой другой позиции, игнорируем
-
-                                //Если курсор на позиции 0 с конца, игнорируем
-
-                                //Если курсор на позиции 2 с конца, отбрасываем сотую без округления
-
-                                Log.d(TAG, "Selector end after format at position: " + binding.rublesTIET.getSelectionEnd());
-
-
-                                //valute.setRublesAmount(String.format(Locale.getDefault(),"%,.2f",format.parse(s.toString()).doubleValue()));
-
-
-                                setValuteTIET(s);
-
+                                if (textBeforeChanged.length() > 6 || s.length() < 4) {
+                                    ignoreNextIteration = true;
+                                }
+                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-
-                            int newSelectorPosition = selectorLastPosition + textLengthafterChanged - textLengthbeforeChanged;
-
-                            if (newSelectorPosition >= 0) {
-                                binding.rublesTIET.setSelection(newSelectorPosition);
-                            } else {
-                                binding.rublesTIET.setSelection(0);
-                            }
                         }
-
                     }
-
-                    // selectorLastPosition = binding.rublesTIET.getSelectionEnd();
-
-                } else {
-                    valute.setValuteAmount("0");
-                }*/
                 }
+
+                if (selectorLastPosition < 0) {
+                    selectorLastPosition = 0;
+                } else if (selectorLastPosition > (valute.getRublesAmount().length())) {
+                    selectorLastPosition = valute.getRublesAmount().length();
+                }
+
                 binding.rublesTIET.setSelection(selectorLastPosition);
             }
         });

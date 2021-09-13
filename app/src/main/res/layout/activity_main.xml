@@ -36,7 +36,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
-                android:text="@={valute.rublesAmount}" />
+                android:text="@={valute.rublesAmount}"
+                android:longClickable="false"
+                />
+
 
         </com.google.android.material.textfield.TextInputLayout>
 
