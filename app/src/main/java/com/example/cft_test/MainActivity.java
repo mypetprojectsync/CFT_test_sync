@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                     valute.setName(model.getName());
                     valute.setNominal(model.getNominal());
 
-                   // valute.setRublesAmount(Integer.toString(valute.getNominal()));
 
                     //todo проверить строчку ниже, возможно есть неточности
                     //valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
@@ -127,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
-//todo добвить поддержку 1,123,456.78
+
         binding.rublesTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         //character added
                     } else if (s.length() > textBeforeChanged.length()) {
 
-                        if (s.charAt(selectorLastPosition) == '.') {
+                        if (s.charAt(selectorLastPosition) == '.' || s.charAt(selectorLastPosition) == ',') {
 
                             ignoreNextIteration = true;
 
@@ -198,11 +197,13 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
                                 valute.setRublesAmount(formatted);
-                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
 
-                                if (textBeforeChanged.length() > 5 || s.charAt(0) == '0') {
+                                if (selectorLastPosition > 2
+                                        || formatted.charAt(1) == ' '
+                                        || s.charAt(0) == '0') {
                                     ignoreNextIteration = true;
                                 }
+                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -212,7 +213,9 @@ public class MainActivity extends AppCompatActivity {
                         //character removed
                     } else {
 
-                        if (selectorLastPosition == textBeforeChanged.length() - 2 || textBeforeChanged.charAt(selectorLastPosition - 1) == ' ') {
+                        if (selectorLastPosition == textBeforeChanged.length() - 2
+                                || textBeforeChanged.charAt(selectorLastPosition - 1) == ' '
+                                || textBeforeChanged.charAt(selectorLastPosition - 1) == ',') {
 
                             selectorLastPosition--;
                             valute.setRublesAmount(textBeforeChanged);
@@ -236,7 +239,9 @@ public class MainActivity extends AppCompatActivity {
                                 String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
                                 valute.setRublesAmount(formatted);
 
-                                if (textBeforeChanged.length() > 6 || s.length() < 4) {
+                                if (selectorLastPosition > 3
+                                        || textBeforeChanged.charAt(selectorLastPosition) == ' '
+                                        || s.length() < 4) {
                                     ignoreNextIteration = true;
                                 }
                                 selectorLastPosition += formatted.length() - textBeforeChanged.length();
@@ -260,17 +265,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setValuteTIET(){
+    private void setValuteTIET() {
 
         Valute valute = binding.getValute();
 
         NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 
-            try {
-                valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(valute.getRublesAmount()).doubleValue() * valute.getNominal() / valute.getValue())));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+        try {
+            valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(valute.getRublesAmount()).doubleValue() * valute.getNominal() / valute.getValue())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
