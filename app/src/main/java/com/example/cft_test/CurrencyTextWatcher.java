@@ -78,56 +78,19 @@ public class CurrencyTextWatcher implements TextWatcher {
     private void characterAdded(Editable s) {
         if (s.charAt(selectorLastPosition) == '.' || s.charAt(selectorLastPosition) == ',') {
 
-            ignoreNextIteration = true;
-
-            if (selectorLastPosition == s.length() - 4) {
-                selectorLastPosition++;
-            }
-
-            binding.rublesTIET.setText(textBeforeChanged);
+            addedDotOrComma(s);
 
         } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
 
-            if (selectorLastPosition == textBeforeChanged.length() - 2) {
-
-                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
-                selectorLastPosition++;
-
-            } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
-
-                selectorLastPosition++;
-                valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
-
-            } else {
-
-                valute.setRublesAmount(textBeforeChanged);
-
-            }
-            ignoreNextIteration = true;
+            addedCharactersInFractionalPart(s);
 
         } else if (selectorLastPosition == 0 && s.charAt(0) == '0') {
 
-            valute.setRublesAmount(textBeforeChanged);
-            ignoreNextIteration = true;
+            addedZeroFirst();
 
         } else {
 
-            NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-
-            try {
-                String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                valute.setRublesAmount(formatted);
-
-                if (selectorLastPosition > 2
-                        || formatted.charAt(1) == ' '
-                        || s.charAt(0) == '0') {
-                    ignoreNextIteration = true;
-                }
-                selectorLastPosition += formatted.length() - textBeforeChanged.length();
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            formatAfterAddCharacter(s);
         }
     }
 
@@ -136,38 +99,104 @@ public class CurrencyTextWatcher implements TextWatcher {
                 || textBeforeChanged.charAt(selectorLastPosition - 1) == ' '
                 || textBeforeChanged.charAt(selectorLastPosition - 1) == ',') {
 
-            selectorLastPosition--;
-            valute.setRublesAmount(textBeforeChanged);
-            ignoreNextIteration = true;
+            removedDotCommaOrSpace();
 
         } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
 
-            if (selectorLastPosition == textBeforeChanged.length() - 1) {
-                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition - 1) + "0" + s.toString().substring(selectorLastPosition - 1));
-            } else {
-                valute.setRublesAmount(s.toString() + '0');
-            }
-            selectorLastPosition--;
-            ignoreNextIteration = true;
+            removedInFractionalPart(s);
 
         } else {
 
-            NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-            try {
-
-                String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                valute.setRublesAmount(formatted);
-
-                if (selectorLastPosition > 3
-                        || textBeforeChanged.charAt(selectorLastPosition) == ' '
-                        || s.length() < 4) {
-                    ignoreNextIteration = true;
-                }
-                selectorLastPosition += formatted.length() - textBeforeChanged.length();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            formatAfterRemoveCharacter(s);
         }
     }
+
+    private void addedDotOrComma(Editable s) {
+        ignoreNextIteration = true;
+
+        if (selectorLastPosition == s.length() - 4) {
+            selectorLastPosition++;
+        }
+
+        binding.rublesTIET.setText(textBeforeChanged);
+    }
+
+    private void addedCharactersInFractionalPart(Editable s) {
+        if (selectorLastPosition == textBeforeChanged.length() - 2) {
+
+            valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
+            selectorLastPosition++;
+
+        } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
+
+            selectorLastPosition++;
+            valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
+
+        } else {
+
+            valute.setRublesAmount(textBeforeChanged);
+
+        }
+        ignoreNextIteration = true;
+    }
+
+    private void addedZeroFirst() {
+        valute.setRublesAmount(textBeforeChanged);
+        ignoreNextIteration = true;
+    }
+
+    private void formatAfterAddCharacter(Editable s) {
+        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+
+        try {
+            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+            valute.setRublesAmount(formatted);
+
+            if (selectorLastPosition > 2
+                    || formatted.charAt(1) == ' '
+                    || s.charAt(0) == '0') {
+                ignoreNextIteration = true;
+            }
+            selectorLastPosition += formatted.length() - textBeforeChanged.length();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void removedDotCommaOrSpace() {
+        selectorLastPosition--;
+        valute.setRublesAmount(textBeforeChanged);
+        ignoreNextIteration = true;
+    }
+
+    private void removedInFractionalPart(Editable s) {
+        if (selectorLastPosition == textBeforeChanged.length() - 1) {
+            valute.setRublesAmount(s.toString().substring(0, selectorLastPosition - 1) + "0" + s.toString().substring(selectorLastPosition - 1));
+        } else {
+            valute.setRublesAmount(s.toString() + '0');
+        }
+        selectorLastPosition--;
+        ignoreNextIteration = true;
+    }
+
+    private void formatAfterRemoveCharacter(Editable s) {
+        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+        try {
+
+            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+            valute.setRublesAmount(formatted);
+
+            if (selectorLastPosition > 3
+                    || textBeforeChanged.charAt(selectorLastPosition) == ' '
+                    || s.length() < 4) {
+                ignoreNextIteration = true;
+            }
+            selectorLastPosition += formatted.length() - textBeforeChanged.length();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 
