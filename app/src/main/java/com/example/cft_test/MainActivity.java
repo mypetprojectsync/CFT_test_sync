@@ -3,8 +3,6 @@ package com.example.cft_test;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +26,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -51,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
     RequestQueue queue;
 
 
-    String textBeforeChanged = "";
+    /*String textBeforeChanged = "";
     int selectorLastPosition = 0;
-    boolean ignoreNextIteration = true;
+    boolean ignoreNextIteration = true;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,10 +112,6 @@ public class MainActivity extends AppCompatActivity {
                     valute.setName(model.getName());
                     valute.setNominal(model.getNominal());
 
-
-                    //todo проверить строчку ниже, возможно есть неточности
-                    //valute.setValuteAmount(Double.toString(valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
-                    //valute.setValuteAmount(String.format(Locale.getDefault(),"%,.2f", valute.getNominal() * Double.parseDouble(valute.getRublesAmount()) / valute.getValue()));
                     setValuteTIET();
 
                     return false;
@@ -126,8 +119,10 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
+        binding.rublesTIET.addTextChangedListener(new CurrencyTextWatcher(binding));
 
-        binding.rublesTIET.addTextChangedListener(new TextWatcher() {
+
+        /*binding.rublesTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -262,10 +257,10 @@ public class MainActivity extends AppCompatActivity {
 
                 setValuteTIET();
             }
-        });
+        });*/
     }
 
-    private void setValuteTIET() {
+    public void setValuteTIET() {
 
         Valute valute = binding.getValute();
 
