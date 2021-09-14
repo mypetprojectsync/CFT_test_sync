@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.show();
 
             popupMenu.setOnMenuItemClickListener(item -> {
-
+                model.setRublesAmount(valute.getRublesAmount());
                 setValute(item.getTitle().toString());
 
                 return false;
@@ -182,7 +182,10 @@ public class MainActivity extends AppCompatActivity {
         valutes.addAll(model.getValutes());
         adapter = new ValuteListAdapter(this, valutes);
 
-        adapter.setClickListener((view, position) -> setValute(valutes.get(position)));
+        adapter.setClickListener((view, position) -> {
+            model.setRublesAmount(valute.getRublesAmount());
+            setValute(valutes.get(position));
+        });
 
         recyclerView.setAdapter(adapter);
 
