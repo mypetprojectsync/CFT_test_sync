@@ -17,6 +17,7 @@ public class ValuteListAdapter extends RecyclerView.Adapter<ValuteListAdapter.Vi
     private ItemClickListener itemClickListener;
 
     private final LayoutInflater inflater;
+    public int selectedPos = RecyclerView.NO_POSITION;
 
     public ValuteListAdapter(Context context, List<String> valutes) {
         this.valutes = valutes;
@@ -34,6 +35,8 @@ public class ValuteListAdapter extends RecyclerView.Adapter<ValuteListAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ValuteListAdapter.ViewHolder holder, int position) {
         holder.valuteTV.setText(valutes.get(position));
+
+        holder.itemView.setSelected(selectedPos == position);
     }
 
     @Override

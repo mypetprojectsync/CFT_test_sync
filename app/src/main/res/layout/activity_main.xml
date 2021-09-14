@@ -25,21 +25,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
+            android:hint="@{valute.charCode == null ? `` : `1 RUR = ` + String.format(`%.4f`,(((double) valute.nominal) / valute.value)) + ` ` + valute.charCode}"
             app:counterEnabled="true"
             app:counterMaxLength="20"
             app:errorEnabled="true"
-            app:prefixText="RUR"
-            android:hint="@{valute.charCode == null ? `` : `1 RUR = ` + String.format(`%.4f`,(((double) valute.nominal) / valute.value)) + ` ` + valute.charCode}">
+            app:prefixText="RUR">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/rubles_TIET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
                 android:digits="0123456789.,"
-                android:text="@={valute.rublesAmount}"
+                android:inputType="numberDecimal"
                 android:longClickable="false"
-                />
+                android:text="@={valute.rublesAmount}" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -47,26 +46,25 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/valute_TIL"
 
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:errorEnabled="true"
-            app:endIconMode="custom"
-            app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
             android:layout_below="@+id/rubles_TIL"
-            app:prefixText="@{valute.charCode}"
-            android:hint="@{valute.charCode == null ? `` : valute.nominal + ` ` + valute.charCode  + ` = ` + valute.value + ` RUR`}">
+            android:layout_margin="10dp"
+            android:hint="@{valute.charCode == null ? `` : valute.nominal + ` ` + valute.charCode  + ` = ` + valute.value + ` RUR`}"
+            app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
+            app:endIconMode="custom"
+            app:errorEnabled="true"
+            app:prefixText="@{valute.charCode}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/valute_TIET"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:inputType="number"
                 android:text="@{valute.valuteAmount}"
-                android:enabled="false"
-                android:textColor="@color/black"
-                />
+                android:textColor="@color/black" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -76,15 +74,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/valute_TIL"
-            >
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@color/rv_background">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/valutes_rv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/valutes_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </RelativeLayout>
 
-    </layout>
+</layout>

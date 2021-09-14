@@ -123,6 +123,18 @@ public class MainActivity extends AppCompatActivity {
         valute.setNominal(model.getNominal());
 
         setValuteTIET();
+
+        setRecyclerViewSelection(chosenValute);
+    }
+
+    private void setRecyclerViewSelection(String chosenValute) {
+        int oldPos = adapter.selectedPos;
+        adapter.selectedPos = valutes.indexOf(chosenValute);
+
+        adapter.notifyItemChanged(oldPos);
+        adapter.notifyItemChanged(adapter.selectedPos);
+
+        recyclerView.smoothScrollToPosition(valutes.indexOf(chosenValute));
     }
 
     public void setValuteTIET() {
