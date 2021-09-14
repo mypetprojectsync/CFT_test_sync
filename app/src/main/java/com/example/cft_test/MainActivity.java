@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +28,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    final String TAG = "myLogs";
     private final int UPDATE_DELAY = 60000;
 
     ActivityMainBinding binding;
@@ -184,12 +182,8 @@ public class MainActivity extends AppCompatActivity {
         valutes.addAll(model.getValutes());
         adapter = new ValuteListAdapter(this, valutes);
 
-        adapter.setClickListener(new ValuteListAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                setValute(valutes.get(position));
-            }
-        });
+        adapter.setClickListener((view, position) -> setValute(valutes.get(position)));
+
         recyclerView.setAdapter(adapter);
 
         adapter.notifyDataSetChanged();
