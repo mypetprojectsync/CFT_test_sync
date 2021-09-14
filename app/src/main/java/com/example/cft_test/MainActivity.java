@@ -3,7 +3,6 @@ package com.example.cft_test;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -62,24 +60,16 @@ public class MainActivity extends AppCompatActivity {
 
         model.updateValutesWithDateCheck(this, queue);
 
-        //todo если уже есть в realm список валют, загрузить первый, если нет, добавить проверку Valute.valuteAmount в updateValutesWithDateCheck. Если NaN, загрузить первый из списка. Или если valute.valuteAmount == null
-
-        if (valutes.size() > 0 && model.getChosenValuteID() == null)
-            model.setChosenValutebyName(valutes.get(0));
-
-        valute = new Valute(model.getChosenValuteID(), model.getCharCode(), model.getNominal(), model.getName(), model.getValue());
+        valute = new Valute(model.getChosenValuteID(), model.getCharCode(), model.getNominal(), model.getName(), model.getValue(), model.getRublesAmount());
         binding.setValute(valute);
 
         setRV();
 
         setValuteTIL();
 
-        binding.swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue);
-            }
-        });
+        binding.rublesTIET.addTextChangedListener(new CurrencyTextWatcher(binding));
+
+        binding.swiperefresh.setOnRefreshListener(() -> model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue));
 
         refillValutes();
 
@@ -103,40 +93,33 @@ public class MainActivity extends AppCompatActivity {
 
         binding.valuteTIL.setEndIconOnClickListener(v -> {
 
-            Log.d(TAG, "icon clicked");
-
             PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
 
-
-            for (String valute : valutes) {
-                popupMenu.getMenu().add(valute);
+            for (String str : valutes) {
+                if (!str.equals(valute.getName())) popupMenu.getMenu().add(str);
             }
 
             popupMenu.show();
 
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
+            popupMenu.setOnMenuItemClickListener(item -> {
 
-                    setValute(item.getTitle().toString());
+                setValute(item.getTitle().toString());
 
-                    return false;
-                }
+                return false;
             });
         });
-
-        binding.rublesTIET.addTextChangedListener(new CurrencyTextWatcher(binding));
     }
 
     private void setValute(String chosenValute) {
         model.setChosenValutebyName(chosenValute);
 
-        Valute valute = binding.getValute();
+        valute = binding.getValute();
         valute.setID(model.getChosenValuteID());
         valute.setValue(model.getValue());
         valute.setCharCode(model.getCharCode());
         valute.setName(model.getName());
         valute.setNominal(model.getNominal());
+        valute.setRublesAmount(model.getRublesAmount());
 
         setValuteTIET();
 
@@ -222,7 +205,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (valute != null) {
             if (valute.getValuteAmount().equals("") && valutes.size() > 0) {
-                setValute(valutes.get(0));
+                if (valute.getName() == null) {
+                    setValute(valutes.get(0));
+                } else {
+                    setValute(valute.getName());
+                }
             }
         }
     }
@@ -230,6 +217,12 @@ public class MainActivity extends AppCompatActivity {
     public void stopRefresh() {
         binding.swiperefresh.setRefreshing(false);
     }
-}
 
-//todo 5.5. implement saving data when orientation change. Popupmenu too
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        model.setRublesAmount(valute.getRublesAmount());
+
+    }
+}

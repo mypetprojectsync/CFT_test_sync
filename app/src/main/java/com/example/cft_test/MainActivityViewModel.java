@@ -39,6 +39,7 @@ public class MainActivityViewModel extends ViewModel {
     private int nominal;
     private String name;
     private double value;
+    private String rublesAmount = "1";
 
     SharedPreferences sharedPreferences;
 
@@ -235,5 +236,13 @@ public class MainActivityViewModel extends ViewModel {
         this.nominal = valuteModel.getNominal();
         this.name = valuteModel.getName();
         this.value = valuteModel.getValue();
+    }
+
+    public String getRublesAmount() {
+        return rublesAmount;
+    }
+
+    public void setRublesAmount(String rublesAmount) {
+        this.rublesAmount = rublesAmount;
     }
 }

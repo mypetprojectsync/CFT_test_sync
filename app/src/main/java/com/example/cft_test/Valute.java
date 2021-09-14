@@ -15,11 +15,11 @@ public class Valute extends BaseObservable {
     private int nominal;
     private String name;
     private double value;
-    private String rublesAmount = "1";
+    private String rublesAmount = "";
     private String valuteAmount = "";
 
 
-    public Valute(String id, String charCode, int nominal, String name, double value) {
+    public Valute(String id, String charCode, int nominal, String name, double value, String rublesAmount) {
         this.ID = id;
         this.charCode = charCode;
         this.nominal = nominal;
@@ -90,7 +90,15 @@ public class Valute extends BaseObservable {
     }
 
     public void setRublesAmount(String rublesAmount) {
-        this.rublesAmount = rublesAmount;
+        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+
+        try {
+            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(rublesAmount)).doubleValue());
+            this.rublesAmount = formatted;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         notifyPropertyChanged(BR.rublesAmount);
     }
 
