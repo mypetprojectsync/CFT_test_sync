@@ -74,12 +74,8 @@ public class MainActivityViewModel extends ViewModel {
 
                                 Toast.makeText(context, "Данные были обновлены", Toast.LENGTH_SHORT).show();
 
-                                Log.d(TAG, "updateValutesWithDateCheck ended");
                             }
-
-
-
-                        } catch (ParseException | JSONException e) {
+                       } catch (ParseException | JSONException e) {
                             e.printStackTrace();
                         }
                     }
@@ -173,10 +169,9 @@ public class MainActivityViewModel extends ViewModel {
                                 ((MainActivity) context).refillValutes();
 
                                 Toast.makeText(context, "Данные были обновлены", Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "updateValutesWithoutDateCheck ended");
-                            } else {
-                                Toast.makeText(context, "Данные актуальны", Toast.LENGTH_SHORT).show();
+
                             }
+
                                 ((MainActivity) context).stopRefresh();
 
                         } catch (ParseException | JSONException e) {

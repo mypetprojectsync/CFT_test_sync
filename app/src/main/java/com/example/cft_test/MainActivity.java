@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.databinding.DataBindingUtil;
@@ -83,6 +85,20 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.refresh) {
+            model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setValuteTIL() {
 
         binding.valuteTIL.setEndIconOnClickListener(v -> {
@@ -148,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        if (valute.getValuteAmount().equals("NaN")) valute.setValuteAmount("");
     }
 
     @Override
@@ -203,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         if (valute != null) {
-            if ((valute.getValuteAmount().equals("NaN") || valute.getValuteAmount().equals("")) && valutes.size() > 0) {
+            if (valute.getValuteAmount().equals("") && valutes.size() > 0) {
                 setValute(valutes.get(0));
             }
         }
@@ -215,5 +233,3 @@ public class MainActivity extends AppCompatActivity {
 }
 
 //todo 5.5. implement saving data when orientation change. Popupmenu too
-
-//todo add refresh button in toolbar
