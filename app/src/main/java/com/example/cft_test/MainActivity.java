@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
@@ -47,11 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     RequestQueue queue;
 
-
-    /*String textBeforeChanged = "";
-    int selectorLastPosition = 0;
-    boolean ignoreNextIteration = true;*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         model.updateValutesWithDateCheck(this, queue);
+
+        //todo если уже есть в realm список валют, загрузить первый, если нет, добавить проверку Valute.valuteAmount в updateValutesWithDateCheck. Если NaN, загрузить первый из списка. Или если valute.valuteAmount == null
 
         if (valutes.size() > 0 && model.getChosenValuteID() == null)
             model.setChosenValutebyName(valutes.get(0));
@@ -82,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
                 model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue);
             }
         });
+
+        refillValutes();
+
     }
 
     private void setValuteTIL() {
@@ -103,16 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
 
-                    model.setChosenValutebyName(item.getTitle().toString());
-
-                    Valute valute = binding.getValute();
-                    valute.setID(model.getChosenValuteID());
-                    valute.setValue(model.getValue());
-                    valute.setCharCode(model.getCharCode());
-                    valute.setName(model.getName());
-                    valute.setNominal(model.getNominal());
-
-                    setValuteTIET();
+                    setValute(item.getTitle().toString());
 
                     return false;
                 }
@@ -120,144 +110,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.rublesTIET.addTextChangedListener(new CurrencyTextWatcher(binding));
+    }
 
+    private void setValute(String chosenValute) {
+        model.setChosenValutebyName(chosenValute);
 
-        /*binding.rublesTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        Valute valute = binding.getValute();
+        valute.setID(model.getChosenValuteID());
+        valute.setValue(model.getValue());
+        valute.setCharCode(model.getCharCode());
+        valute.setName(model.getName());
+        valute.setNominal(model.getNominal());
 
-                if (!ignoreNextIteration) {
-                    textBeforeChanged = s.toString();
-                    selectorLastPosition = binding.rublesTIET.getSelectionStart();
-                }
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                if (ignoreNextIteration) {
-                    ignoreNextIteration = false;
-                } else {
-
-                    if (s.length() > 20) {
-                        ignoreNextIteration = true;
-                        valute.setRublesAmount(textBeforeChanged);
-
-                        //character added
-                    } else if (s.length() > textBeforeChanged.length()) {
-
-                        if (s.charAt(selectorLastPosition) == '.' || s.charAt(selectorLastPosition) == ',') {
-
-                            ignoreNextIteration = true;
-
-                            if (selectorLastPosition == s.length() - 4) {
-                                selectorLastPosition++;
-                            }
-
-                            binding.rublesTIET.setText(textBeforeChanged);
-
-                        } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
-
-                            if (selectorLastPosition == textBeforeChanged.length() - 2) {
-
-                                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition + 1) + s.toString().substring(selectorLastPosition + 2));
-                                selectorLastPosition++;
-
-                            } else if (selectorLastPosition == textBeforeChanged.length() - 1) {
-
-                                selectorLastPosition++;
-                                valute.setRublesAmount(s.toString().substring(0, s.toString().length() - 1));
-
-                            } else {
-
-                                valute.setRublesAmount(textBeforeChanged);
-
-                            }
-                            ignoreNextIteration = true;
-
-                        } else if (selectorLastPosition == 0 && s.charAt(0) == '0') {
-
-                            valute.setRublesAmount(textBeforeChanged);
-                            ignoreNextIteration = true;
-
-                        } else {
-
-                            NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-
-                            try {
-                                String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                                valute.setRublesAmount(formatted);
-
-                                if (selectorLastPosition > 2
-                                        || formatted.charAt(1) == ' '
-                                        || s.charAt(0) == '0') {
-                                    ignoreNextIteration = true;
-                                }
-                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
-
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        //character removed
-                    } else {
-
-                        if (selectorLastPosition == textBeforeChanged.length() - 2
-                                || textBeforeChanged.charAt(selectorLastPosition - 1) == ' '
-                                || textBeforeChanged.charAt(selectorLastPosition - 1) == ',') {
-
-                            selectorLastPosition--;
-                            valute.setRublesAmount(textBeforeChanged);
-                            ignoreNextIteration = true;
-
-                        } else if (selectorLastPosition > textBeforeChanged.length() - 3) {
-
-                            if (selectorLastPosition == textBeforeChanged.length() - 1) {
-                                valute.setRublesAmount(s.toString().substring(0, selectorLastPosition - 1) + "0" + s.toString().substring(selectorLastPosition - 1));
-                            } else {
-                                valute.setRublesAmount(s.toString() + '0');
-                            }
-                            selectorLastPosition--;
-                            ignoreNextIteration = true;
-
-                        } else {
-
-                            NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-                            try {
-
-                                String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
-                                valute.setRublesAmount(formatted);
-
-                                if (selectorLastPosition > 3
-                                        || textBeforeChanged.charAt(selectorLastPosition) == ' '
-                                        || s.length() < 4) {
-                                    ignoreNextIteration = true;
-                                }
-                                selectorLastPosition += formatted.length() - textBeforeChanged.length();
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
-                if (selectorLastPosition < 0) {
-                    selectorLastPosition = 0;
-                } else if (selectorLastPosition > (valute.getRublesAmount().length())) {
-                    selectorLastPosition = valute.getRublesAmount().length();
-                }
-
-                binding.rublesTIET.setSelection(selectorLastPosition);
-
-                setValuteTIET();
-            }
-        });*/
+        setValuteTIET();
     }
 
     public void setValuteTIET() {
@@ -276,13 +141,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
 
-        handler.postDelayed(runnable = new Runnable() {
-            @Override
-            public void run() {
-                model.updateValutesWithDateCheck(binding.getRoot().getContext(), queue);
-                handler.postDelayed(runnable, UPDATE_DELAY);
-            }
-        }, UPDATE_DELAY);
+        setUpdateDataByTimer();
 
         super.onResume();
     }
@@ -294,6 +153,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpdateDataByTimer() {
+
+        handler.postDelayed(runnable = () -> {
+            model.updateValutesWithDateCheck(binding.getRoot().getContext(), queue);
+            handler.postDelayed(runnable, UPDATE_DELAY);
+        }, UPDATE_DELAY);
+
     }
 
     private void setRV() {
@@ -309,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.setClickListener(new ValuteListAdapter.ItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Log.d(TAG, valutes.get(position) + " clicked");
+                setValute(valutes.get(position));
             }
         });
         recyclerView.setAdapter(adapter);
@@ -325,8 +190,11 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
-
-        Toast.makeText(this, "Данные были обновлены", Toast.LENGTH_SHORT).show();
+        if (valute != null) {
+            if ((valute.getValuteAmount().equals("NaN") || valute.getValuteAmount().equals("")) && valutes.size() > 0) {
+                setValute(valutes.get(0));
+            }
+        }
     }
 
     public void stopRefresh() {
@@ -336,6 +204,4 @@ public class MainActivity extends AppCompatActivity {
 
 //todo 5.5. implement saving data when orientation change. Popupmenu too
 
-//todo 7. implement recycler view currency list selection when clicked
-
-//todo упомянуть СДР в пояснительной записке
+//todo add refresh button in toolbar
