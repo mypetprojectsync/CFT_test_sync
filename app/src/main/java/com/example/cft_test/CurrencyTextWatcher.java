@@ -98,6 +98,7 @@ public class CurrencyTextWatcher implements TextWatcher {
     }
 
     private void characterRemoved(Editable s) {
+
         if (selectorLastPosition == textBeforeChanged.length() - 2
                 || textBeforeChanged.charAt(selectorLastPosition - 1) == ' '
                 || textBeforeChanged.charAt(selectorLastPosition - 1) == ',') {
@@ -157,6 +158,7 @@ public class CurrencyTextWatcher implements TextWatcher {
 
             if (selectorLastPosition > 2
                     || formatted.charAt(1) == ' '
+                    || formatted.charAt(1) == ','
                     || s.charAt(0) == '0') {
                 ignoreNextIteration = true;
             }
@@ -192,6 +194,7 @@ public class CurrencyTextWatcher implements TextWatcher {
 
             if (selectorLastPosition > 3
                     || textBeforeChanged.charAt(selectorLastPosition) == ' '
+                    || textBeforeChanged.charAt(selectorLastPosition) == ','
                     || s.length() < 4) {
                 ignoreNextIteration = true;
             }
