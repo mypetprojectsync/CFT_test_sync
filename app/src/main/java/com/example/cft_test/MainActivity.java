@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -58,7 +59,9 @@ public class MainActivity extends AppCompatActivity {
 
         model.updateValutesWithDateCheck(this, queue);
 
-        valute = new Valute(model.getChosenValuteID(), model.getCharCode(), model.getNominal(), model.getName(), model.getValue(), model.getRublesAmount());
+        setLocale();
+
+        valute = new Valute(model.getChosenValuteID(), model.getCharCode(), model.getNominal(), model.getName(), model.getValue(), model.getRublesAmount(), binding.getLocale());
         binding.setValute(valute);
 
         setRV();
@@ -67,10 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
         binding.rublesTIET.addTextChangedListener(new CurrencyTextWatcher(binding));
 
-        binding.swiperefresh.setOnRefreshListener(() -> model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue));
+        binding.swipeRefresh.setOnRefreshListener(() -> model.updateValutesWithoutDateCheck(binding.getRoot().getContext(), queue));
 
         refillValutes();
 
+
+    }
+
+    private void setLocale() {
+        if (Locale.getDefault().toString().equals("ru_RU")) {
+            binding.setLocale(Locale.getDefault());
+        } else {
+            binding.setLocale(Locale.US);
+        }
     }
 
     @Override
@@ -138,10 +150,10 @@ public class MainActivity extends AppCompatActivity {
 
         Valute valute = binding.getValute();
 
-        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+        NumberFormat format = NumberFormat.getInstance(binding.getLocale());
 
         try {
-            valute.setValuteAmount(String.format(Locale.getDefault(), "%,.2f", (format.parse(valute.getRublesAmount()).doubleValue() * valute.getNominal() / valute.getValue())));
+            valute.setValuteAmount(String.format(binding.getLocale(), "%,.2f", (Objects.requireNonNull(format.parse(valute.getRublesAmount())).doubleValue() * valute.getNominal() / valute.getValue())));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -176,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = binding.valutesRv;
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                ((LinearLayoutManager) recyclerView.getLayoutManager()).getOrientation());
+                ((LinearLayoutManager) Objects.requireNonNull(recyclerView.getLayoutManager())).getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         valutes.addAll(model.getValutes());
@@ -212,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopRefresh() {
-        binding.swiperefresh.setRefreshing(false);
+        binding.swipeRefresh.setRefreshing(false);
     }
 
     @Override

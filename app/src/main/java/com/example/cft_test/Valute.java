@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public class Valute extends BaseObservable {
 
+    private final Locale LOCALE;
+
     private String ID;
     private String charCode;
     private int nominal;
@@ -19,21 +21,16 @@ public class Valute extends BaseObservable {
     private String valuteAmount = "";
 
 
-    public Valute(String id, String charCode, int nominal, String name, double value, String rublesAmount) {
+
+    public Valute(String id, String charCode, int nominal, String name, double value, String rublesAmount, Locale locale) {
         this.ID = id;
         this.charCode = charCode;
         this.nominal = nominal;
         this.name = name;
         this.value = value;
+        this.LOCALE = locale;
 
-        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-
-        try {
-            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(this.getRublesAmount())).doubleValue());
-            this.setRublesAmount(formatted);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        setRublesAmount(rublesAmount);
     }
 
     public String getID() {
@@ -90,11 +87,10 @@ public class Valute extends BaseObservable {
     }
 
     public void setRublesAmount(String rublesAmount) {
-        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+        NumberFormat format = NumberFormat.getInstance(LOCALE);
 
         try {
-            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(rublesAmount)).doubleValue());
-            this.rublesAmount = formatted;
+            this.rublesAmount = String.format(LOCALE, "%,.2f", Objects.requireNonNull(format.parse(rublesAmount)).doubleValue());
         } catch (ParseException e) {
             e.printStackTrace();
         }

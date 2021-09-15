@@ -12,6 +12,8 @@ import java.util.Objects;
 
 public class CurrencyTextWatcher implements TextWatcher {
 
+    private final Locale LOCALE;
+
     String textBeforeChanged = "";
     int selectorLastPosition = 0;
     boolean ignoreNextIteration = true;
@@ -22,6 +24,7 @@ public class CurrencyTextWatcher implements TextWatcher {
     CurrencyTextWatcher(ActivityMainBinding binding) {
         this.binding = binding;
         this.valute = binding.getValute();
+        this.LOCALE = binding.getLocale();
     }
 
 
@@ -146,10 +149,10 @@ public class CurrencyTextWatcher implements TextWatcher {
     }
 
     private void formatAfterAddCharacter(Editable s) {
-        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+        NumberFormat format = NumberFormat.getInstance(LOCALE);
 
         try {
-            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+            String formatted = String.format(LOCALE, "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
             valute.setRublesAmount(formatted);
 
             if (selectorLastPosition > 2
@@ -181,10 +184,10 @@ public class CurrencyTextWatcher implements TextWatcher {
     }
 
     private void formatAfterRemoveCharacter(Editable s) {
-        NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+        NumberFormat format = NumberFormat.getInstance(LOCALE);
         try {
 
-            String formatted = String.format(Locale.getDefault(), "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
+            String formatted = String.format(LOCALE, "%,.2f", Objects.requireNonNull(format.parse(s.toString())).doubleValue());
             valute.setRublesAmount(formatted);
 
             if (selectorLastPosition > 3
@@ -197,6 +200,5 @@ public class CurrencyTextWatcher implements TextWatcher {
             e.printStackTrace();
         }
     }
-
 }
 
