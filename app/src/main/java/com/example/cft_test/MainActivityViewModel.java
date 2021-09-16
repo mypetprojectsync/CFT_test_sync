@@ -9,7 +9,6 @@ import androidx.preference.PreferenceManager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
@@ -32,6 +31,8 @@ public class MainActivityViewModel extends ViewModel {
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
 
+    final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+
     private String chosenValuteID;
     private String charCode;
     private int nominal;
@@ -40,6 +41,8 @@ public class MainActivityViewModel extends ViewModel {
     private String rublesAmount = "1";
 
     SharedPreferences sharedPreferences;
+
+    Date lastUpdateDateTime = null;
 
     public String getChosenValuteID() {
         return chosenValuteID;
@@ -91,38 +94,47 @@ public class MainActivityViewModel extends ViewModel {
 
     public void updateValutesWithDateCheck(Context context, RequestQueue queue) {
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
+
+        try {
+            lastUpdateDateTime = FORMAT.parse(lastUpdate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Date currentDate = new Date();
+
+        long currentDiff = currentDate.getTime() - lastUpdateDateTime.getTime();
+
+        if (currentDiff > MINIMAL_UPDATE_TIME) {
+            doDataRequest(context, queue);
+        }
+    }
+
+    public void doDataRequest(Context context, RequestQueue queue) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, url, null, response -> {
 
-                    @Override
-                    public void onResponse(JSONObject response) {
+                    try {
+                        Date dataDate = FORMAT.parse(response.getString("Date"));
 
-                        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                        String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
+                        if (dataDate.getTime() > lastUpdateDateTime.getTime()) {
+                            workWithJson(response);
 
-                        try {
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("last_update_date", response.getString("Date"));
+                            editor.apply();
 
-                            Date lastUpdateDateTime = format.parse(lastUpdate);
-                            Date dataDate = format.parse(response.getString("Date"));
+                            ((MainActivity) context).refillValutes();
 
-                            long diff = dataDate.getTime() - lastUpdateDateTime.getTime();
-
-                            if (diff > MINIMAL_UPDATE_TIME) {
-                                workWithJson(response);
-
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("last_update_date", response.getString("Date"));
-                                editor.apply();
-
-                                ((MainActivity) context).refillValutes();
-
-                                Toast.makeText(context, context.getString(R.string.data_updated), Toast.LENGTH_SHORT).show();
-
-                            }
-                       } catch (ParseException | JSONException e) {
-                            e.printStackTrace();
+                            Toast.makeText(context, context.getString(R.string.data_updated), Toast.LENGTH_SHORT).show();
                         }
+
+                        ((MainActivity) context).stopRefresh();
+
+                    } catch (ParseException | JSONException e) {
+                        e.printStackTrace();
                     }
                 }, Throwable::printStackTrace);
 
@@ -163,38 +175,17 @@ public class MainActivityViewModel extends ViewModel {
 
     public void updateValutesWithoutDateCheck(Context context, RequestQueue queue) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, response -> {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
 
-                    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    String lastUpdate = sharedPreferences.getString("last_update_date", "1970-01-01T00:00:00+00:00");
+        try {
+            lastUpdateDateTime = FORMAT.parse(lastUpdate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-                    try {
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-
-                        Date lastUpdateDateTime = format.parse(lastUpdate);
-                        Date dataDate = format.parse(response.getString("Date"));
-
-                        if (dataDate.getTime() > lastUpdateDateTime.getTime()) {
-                            workWithJson(response);
-
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("last_update_date", response.getString("Date"));
-                            editor.apply();
-
-                            ((MainActivity) context).refillValutes();
-
-                            Toast.makeText(context, context.getString(R.string.data_updated), Toast.LENGTH_SHORT).show();
-                        }
-                            ((MainActivity) context).stopRefresh();
-
-                    } catch (ParseException | JSONException e) {
-                        e.printStackTrace();
-                    }
-                }, Throwable::printStackTrace);
-
-        queue.add(jsonObjectRequest);
-    }
+        doDataRequest(context, queue);
+  }
 
     public List<String> getValutes() {
 

@@ -21,7 +21,6 @@ public class Valute extends BaseObservable {
     private String valuteAmount = "";
 
 
-
     public Valute(String id, String charCode, int nominal, String name, double value, String rublesAmount, Locale locale) {
         this.ID = id;
         this.charCode = charCode;
@@ -101,7 +100,6 @@ public class Valute extends BaseObservable {
     @Bindable
     public String getValuteAmount() {
         return valuteAmount;
-
     }
 
     public void setValuteAmount(String valuteAmount) {
