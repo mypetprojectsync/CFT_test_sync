@@ -29,7 +29,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int UPDATE_DELAY = 60000;
+    private final int UPDATE_DELAY = 65000;
 
     ActivityMainBinding binding;
     MainActivityViewModel model;

@@ -12,7 +12,8 @@ public class ValuteModel extends RealmObject {
     private String name;
     private Double value;
 
-    public ValuteModel(){}
+    public ValuteModel() {
+    }
 
     public String getId() {
         return id;

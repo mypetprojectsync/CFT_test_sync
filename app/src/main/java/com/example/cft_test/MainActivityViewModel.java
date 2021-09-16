@@ -31,7 +31,7 @@ public class MainActivityViewModel extends ViewModel {
 
     final private String url = "https://www.cbr-xml-daily.ru/daily_json.js";
 
-    final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
     private String chosenValuteID;
     private String charCode;
@@ -117,19 +117,18 @@ public class MainActivityViewModel extends ViewModel {
                 (Request.Method.GET, url, null, response -> {
 
                     try {
-                        Date dataDate = FORMAT.parse(response.getString("Date"));
+                        Date dataDate = FORMAT.parse(response.getString("Timestamp"));
 
                         if (dataDate.getTime() > lastUpdateDateTime.getTime()) {
-                            workWithJson(response);
 
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("last_update_date", response.getString("Date"));
-                            editor.apply();
+                            workWithJson(response);
 
                             ((MainActivity) context).refillValutes();
 
                             Toast.makeText(context, context.getString(R.string.data_updated), Toast.LENGTH_SHORT).show();
                         }
+
+                        setNewLastUpdateDate();
 
                         ((MainActivity) context).stopRefresh();
 
@@ -139,6 +138,15 @@ public class MainActivityViewModel extends ViewModel {
                 }, Throwable::printStackTrace);
 
         queue.add(jsonObjectRequest);
+    }
+
+    private void setNewLastUpdateDate() {
+
+        Date currentDate = new Date();
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("last_update_date", FORMAT.format(currentDate));
+        editor.apply();
     }
 
     private void workWithJson(JSONObject response) throws JSONException {
@@ -185,7 +193,7 @@ public class MainActivityViewModel extends ViewModel {
         }
 
         doDataRequest(context, queue);
-  }
+    }
 
     public List<String> getValutes() {
 
@@ -201,8 +209,8 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void setChosenValutebyName(String chosenValuteName) {
-                this.chosenValuteID = realm.where(ValuteModel.class).equalTo("name", chosenValuteName).findFirst().getId();
-                setChosenValuteData();
+        this.chosenValuteID = realm.where(ValuteModel.class).equalTo("name", chosenValuteName).findFirst().getId();
+        setChosenValuteData();
     }
 
     private void setChosenValuteData() {
